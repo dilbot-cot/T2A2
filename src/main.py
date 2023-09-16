@@ -2,6 +2,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy(app)
+
 def create_app():
 
     # App object area
@@ -11,6 +13,6 @@ def create_app():
     app.config.from_object("config.app_config")
 
     # DB object area
-    db = SQLAlchemy(app)
-
+    db.init_app(app)
+    
     return app
