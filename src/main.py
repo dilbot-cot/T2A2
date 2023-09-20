@@ -1,8 +1,10 @@
 # IMPORT SECTION
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 
-db = SQLAlchemy(app)
+db = SQLAlchemy()
+ma = Marshmallow()
 
 def create_app():
 
@@ -14,5 +16,19 @@ def create_app():
 
     # DB object area
     db.init_app(app)
+
+    # Schema area
+    ma.init_app(app)
+
+    # commands
+    from commands import db_commands
+    app.register_blueprint(db_commands)
+
+
+    #import controllers and activate blueprints
+    from controllers import registerable_controllers
+
+    for controller in registerable_controllers:
+        app.register_blueprint(controller)
     
     return app

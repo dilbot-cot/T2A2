@@ -1,13 +1,16 @@
 from main import db
+from sqlalchemy import Date
 from sqlalchemy.orm import relationship
-from sqlalchemy import DateTime
 
+
+# Director Model
 class Director(db.Model):
-    __tablename__ = "directors"
+    __tablename__ = 'directors'
     id = db.Column(db.Integer, primary_key=True)
 
-    name = db.Column(db.String, unique=True, nullable=False)
-    dob = db.Column(DateTime, nullable=False)
+    name = db.Column(db.String, nullable=False)
+    dob = db.Column(Date, nullable=False)
 
-    tv = relationship("TVDirector", back_populates="directors")
-    movie = relationship("MovieDirector", back_populates="directors")
+    # Relationships
+    movie_directors = relationship('MovieDirector', back_populates='director')
+    tv_directors = relationship('TVDirector', back_populates='director')
