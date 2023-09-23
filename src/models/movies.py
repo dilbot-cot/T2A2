@@ -1,17 +1,17 @@
-from sqlalchemy import ForeignKey, Date
-from sqlalchemy.orm import relationship
 from main import db
+from .join_tables import movie_actors, movie_directors, movie_genres
 
-# Movie Model
 class Movie(db.Model):
-    __tablename__ = 'movies'
+    __tablename__= "movies"
     id = db.Column(db.Integer, primary_key=True)
+    
+    title = db.Column(db.String(50), nullable=False)
+    release_date = db.Column(db.Date, nullable=False)
 
-    title = db.Column(db.String, nullable=False)
-    release_date = db.Column(Date, nullable=False)
+    # One to Many Relationships
+    reviews = db.relationship('Review', backref='movie', lazy=True)
 
-    # Relationships
-    movie_genre = relationship('MovieGenre', back_populates='movie')
-    reviews = relationship('Review', back_populates='movie')
-    movie_actors = relationship('MovieActor', back_populates='movie')
-    movie_directors = relationship('MovieDirector', back_populates='movie')
+    # Many to Many Relationships
+    genres = db.relationship('Genre', secondary=movie_genres, backref=db.backref('movies', lazy='dynamic'))
+    actors = db.relationship('Genre', secondary=movie_actors, backref=db.backref('movies', lazy='dynamic'))
+    directors = db.relationship('Genre', secondary=movie_directors, backref=db.backref('movies', lazy='dynamic'))

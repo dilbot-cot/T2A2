@@ -1,18 +1,18 @@
-from sqlalchemy import ForeignKey, Date
-from sqlalchemy.orm import relationship
 from main import db
+from .join_tables import tv_show_directors, tv_show_actors, tv_show_genres
 
-# TVShow Model
-class TVShow(db.Model):
-    __tablename__ = 'tv_shows'
+class TV_Show(db.Model):
+    __tablename__= "tv_shows"
     id = db.Column(db.Integer, primary_key=True)
+    
+    title = db.Column(db.String(50), nullable=False)
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=True)
 
-    title = db.Column(db.String, nullable=False)
-    start_date = db.Column(Date, nullable=False)
-    end_date = db.Column(Date, nullable=True)
+    # One to Many Relationships
+    reviews = db.relationship('Review', backref='tv_show', lazy=True)
 
-    # Relationships
-    tv_genre = relationship('TVGenre', back_populates='tv_show')
-    reviews = relationship('Review', back_populates='tv_show')
-    tv_actors = relationship('TVActor', back_populates='tv_show')
-    tv_directors = relationship('TVDirector', back_populates='tv_show')
+    # Many to Many Relationships
+    genres = db.relationship('Genre', secondary=tv_show_genres, backref=db.backref('tv_shows', lazy='dynamic'))
+    actors = db.relationship('Genre', secondary=tv_show_actors, backref=db.backref('tv_shows', lazy='dynamic'))
+    directors = db.relationship('Genre', secondary=tv_show_directors, backref=db.backref('tv_shows', lazy='dynamic'))

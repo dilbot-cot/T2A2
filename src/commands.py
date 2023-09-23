@@ -1,6 +1,6 @@
 from main import db, bcrypt
 from flask import Blueprint
-from models import Actor, Director, Genre, Movie, Review, TVShow, User
+from models.__innit__ import Actor, Director, Genre, Movie, Review, TVShow, User
 from datetime import date
 
 db_commands = Blueprint("db", __name__)
