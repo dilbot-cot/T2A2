@@ -9,7 +9,6 @@ class Movie(db.Model):
 
     title = db.Column(db.String, nullable=False)
     release_date = db.Column(Date, nullable=False)
-    genre_id = db.Column(db.Integer, ForeignKey('genres.id'), nullable=False)
 
     # Relationships
     genre = relationship('Genre', back_populates='movies')
