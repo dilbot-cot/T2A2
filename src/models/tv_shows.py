@@ -12,7 +12,7 @@ class TVShow(db.Model):
     end_date = db.Column(Date, nullable=True)
 
     # Relationships
-    genre = relationship('Genre', back_populates='tv_shows')
+    tv_genre = relationship('TVGenre', back_populates='tv_show')
     reviews = relationship('Review', back_populates='tv_show')
     tv_actors = relationship('TVActor', back_populates='tv_show')
     tv_directors = relationship('TVDirector', back_populates='tv_show')

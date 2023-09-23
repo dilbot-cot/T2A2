@@ -8,5 +8,5 @@ class Genre(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
 
     # Relationships
-    movies = relationship('Movie', back_populates='genre')
-    tv_shows = relationship('TVShow', back_populates='genre')
+    movie_genres = relationship('MovieGenre', back_populates='genre')
+    tv_shows_genre = relationship('TVShowGenre', back_populates='genre')

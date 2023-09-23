@@ -11,7 +11,7 @@ class Movie(db.Model):
     release_date = db.Column(Date, nullable=False)
 
     # Relationships
-    genre = relationship('Genre', back_populates='movies')
+    movie_genre = relationship('MovieGenre', back_populates='movie')
     reviews = relationship('Review', back_populates='movie')
     movie_actors = relationship('MovieActor', back_populates='movie')
     movie_directors = relationship('MovieDirector', back_populates='movie')
