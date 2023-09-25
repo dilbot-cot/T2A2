@@ -1,4 +1,5 @@
 from main import ma
+# from schemas import ReviewSchema
 
 class UserSchema(ma.Schema):
     class Meta:
@@ -8,7 +9,12 @@ class UserSchema(ma.Schema):
             'username',
             'email',
             'password',
-            'is_admin'
+            'is_admin',
+            'reviews'
         )
+
+    # Nested fields
+    reviews = ma.Nested('ReviewSchema', many=True, exclude=('user'))
+
 user_schema = UserSchema
 users_schema = UserSchema(many=True)

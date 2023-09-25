@@ -1,4 +1,5 @@
 from main import ma
+# from schemas import MovieSchema, TVShowSchema
 
 class DirectorSchema(ma.Schema):
     class Meta:
@@ -6,8 +7,14 @@ class DirectorSchema(ma.Schema):
         fields = (
             'id',
             'name',
-            'dob'
+            'dob',          
+            'movies',
+            'tv_shows'
         )
+    
+    # Nested fields
+    movies = ma.Nested('MovieSchema', many=True, exclude=('directors',))
+    tv_shows = ma.Nested('TVShowSchema', many=True, exclude=('directors',))
 
 director_schema = DirectorSchema
 directors_schema = DirectorSchema(many=True)

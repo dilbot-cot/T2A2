@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from main import db
-from models.actors import Actor
-from schemas.actors_schema import actors_schema, actor_schema
+from models import Actor
+from schemas.actors_schema import actor_schema, actors_schema
 
 actors = Blueprint('actors', __name__, url_prefix="/actors")
 
@@ -14,7 +14,6 @@ def get_actors():
     result = actors_schema.dump(actors_list)
     # return the data in JSON format
     return jsonify(result)
-    # return "List of actors"
 
 @actors.route("/", methods=["POST"])
 def create_actor():

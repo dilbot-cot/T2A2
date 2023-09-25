@@ -1,14 +1,22 @@
 from main import ma
+# from schemas import MovieSchema, TVShowSchema, UserSchema
 
-class TVShowSchema(ma.Schema):
+class ReviewSchema(ma.Schema):
     class Meta:
         # Fields to show
         fields = (
             'id',
-            'title',
-            'start_date',
-            'end_date'
+            'content',
+            'rating'
+            'movies',
+            'tv_shows',
+            'user'
         )
+    
+    # Nested fields
+    movies = ma.Nested('MovieSchema', exclude=('reviews',))
+    tv_shows = ma.Nested('TVShowSchema', exclude=('reviews',))
+    user = ma.Nested('UserSchema', only=('id', 'username'))
 
-tv_show_schema = TVShowSchema
-tv_shows_schema = TVShowSchema(many=True)
+review_schema = ReviewSchema
+reviews_schema = ReviewSchema(many=True)

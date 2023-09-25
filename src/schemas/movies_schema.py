@@ -1,13 +1,24 @@
 from main import ma
+# from schemas import ActorSchema, DirectorSchema, GenreSchema, ReviewSchema
 
-class ActorSchema(ma.Schema):
+class MovieSchema(ma.Schema):
     class Meta:
         # Fields to show
         fields = (
             'id',
-            'name',
-            'dob'
+            'title',
+            'release_date',
+            'actors',
+            'directors',
+            'genres',
+            'reviews'
         )
 
-actor_schema = ActorSchema
-actors_schema = ActorSchema(many=True)
+    # Nested fields
+    actors = ma.Nested('ActorSchema', many=True, exclude=('movies',))
+    directors = ma.Nested('DirectorSchema', many=True, exclude=('movies',))
+    genres = ma.Nested('GenreSchema', many=True, exclude=('movies',))
+    reviews = ma.Nested('ReviewSchema', many=True, exclue=('movies',))
+
+movie_schema = MovieSchema
+movies_schema = MovieSchema(many=True)
