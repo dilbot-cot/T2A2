@@ -31,7 +31,7 @@ class TVShowSchema(ma.Schema):
     actors = ma.Nested('ActorListSchema', many=True)
     directors = ma.Nested('DirectorListSchema', many=True)
     genres = ma.Nested('GenreListSchema', many=True)
-    reviews = ma.Nested('ReviewSchema', many=True, only=('id', 'content', 'rating'))
+    reviews = ma.Nested('ReviewSchema', many=True, only=('id', 'content', 'rating', 'user'))
 
 tvshow_schema = TVShowSchema()
 tvshows_schema = TVShowSchema(many=True)

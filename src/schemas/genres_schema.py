@@ -8,7 +8,7 @@ class GenreListSchema(ma.Schema):
             'name'
         )
 
-genres_lits_schema = GenreListSchema(many=True)
+genres_list_schema = GenreListSchema(many=True)
 
 class GenreSchema(ma.Schema):
     class Meta:

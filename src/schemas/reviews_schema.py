@@ -6,7 +6,7 @@ class ReviewSchema(ma.Schema):
         fields = (
             'id',
             'content',
-            'rating'
+            'rating',
             'movies',
             'tv_shows',
             'user'

@@ -54,7 +54,6 @@ def new_user():
 
     return jsonify({"message": f"User {username} created successfully"}), 201
 
-
 #DELETE endpoints
 @user.route("/", methods=["DELETE"])
 @jwt_required()
