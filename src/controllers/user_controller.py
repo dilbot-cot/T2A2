@@ -3,6 +3,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from main import db, bcrypt
 from models import User, Review
 from schemas import reviews_schema
+from sqlalchemy.orm import joinedload
 
 user = Blueprint('user', __name__, url_prefix="/user")
 
@@ -14,7 +15,11 @@ def list_reviews():
     if not current_user:
         return jsonify ({"error": "Please login to see all of your posted reviews"}), 401
     
-    reviews = Review.query.filter_by(user_id=user_id).all()
+    reviews = Review.query.options(
+        joinedload(Review.movie),
+        joinedload(Review.tv_show)
+        ).filter_by(user_id=user_id).all()
+    
     return jsonify (reviews_schema.dump(reviews))
 
 #POST endpoints

@@ -7,14 +7,14 @@ class ReviewSchema(ma.Schema):
             'id',
             'content',
             'rating',
-            'movies',
-            'tv_shows',
+            'movie',
+            'tv_show',
             'user'
         )
     
     # Nested fields
-    movies = ma.Nested('MovieSchema', only=('id', 'title', 'release_date'))
-    tv_shows = ma.Nested('TVShowSchema', only=('id', 'title', 'start_date', 'end_date'))
+    movie = ma.Nested('MovieSchema', only=('id', 'title', 'release_date'))
+    tv_show = ma.Nested('TVShowSchema', only=('id', 'title', 'start_date', 'end_date'))
     user = ma.Nested('UserSchema', only=('id', 'username'))
 
 review_schema = ReviewSchema()
