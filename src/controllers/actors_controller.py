@@ -15,6 +15,9 @@ def get_actors():
 
 @actors.route("/<int:id>", methods=["GET"])
 def get_actor(id):
-    actor = Actor.query.get_or_404(id)
+    actor = Actor.query.get(id)
+    if not actor:
+        return jsonify({"error": "No actor exists for this id"}), 404
     result = actor_schema.dump(actor)
     return jsonify(result)
+
