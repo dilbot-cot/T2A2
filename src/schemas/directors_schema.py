@@ -1,6 +1,17 @@
 from main import ma
 
-class DirectorSchema(ma.Schema):
+class DirectorListSchema(ma.Schema):
+    class Meta:
+        # Fields to show
+        fields = (
+            'id',
+            'name',
+            'dob'
+        )
+
+directors_list_schema = DirectorListSchema(many=True)
+
+class DirectorListSchema(ma.Schema):
     class Meta:
         # Fields to show
         fields = (
@@ -12,8 +23,8 @@ class DirectorSchema(ma.Schema):
         )
     
     # Nested fields
-    movies = ma.Nested('MovieSchema', many=True, exclude=('directors',))
-    tv_shows = ma.Nested('TVShowSchema', many=True, exclude=('directors',))
+    movies = ma.Nested('MovieListSchema', many=True)
+    tv_shows = ma.Nested('TVShowListSchema', many=True)
 
-director_schema = DirectorSchema
-directors_schema = DirectorSchema(many=True)
+director_schema = DirectorListSchema()
+directors_schema = DirectorListSchema(many=True)

@@ -1,5 +1,16 @@
 from main import ma
 
+class MovieListSchema(ma.Schema):
+    class Meta:
+        # Fields to show
+        fields = (
+            'id',
+            'title',
+            'release_date'
+        )
+
+movies_list_schema = MovieListSchema(many=True)
+
 class MovieSchema(ma.Schema):
     class Meta:
         # Fields to show
@@ -14,10 +25,10 @@ class MovieSchema(ma.Schema):
         )
 
     # Nested fields
-    actors = ma.Nested('ActorSchema', many=True, exclude=('movies',))
-    directors = ma.Nested('DirectorSchema', many=True, exclude=('movies',))
-    genres = ma.Nested('GenreSchema', many=True, exclude=('movies',))
-    reviews = ma.Nested('ReviewSchema', many=True, exclue=('movies',))
+    actors = ma.Nested('ActorListSchema', many=True)
+    directors = ma.Nested('DirectorListSchema', many=True)
+    genres = ma.Nested('GenreListSchema', many=True)
+    reviews = ma.Nested('ReviewSchema', many=True, only=('id', 'content', 'rating'))
 
-movie_schema = MovieSchema
+movie_schema = MovieSchema()
 movies_schema = MovieSchema(many=True)

@@ -1,5 +1,17 @@
 from main import ma
 
+class TVShowListSchema(ma.Schema):
+    class Meta:
+        # Fields to show
+        fields = (
+            'id',
+            'title',
+            'start_date',
+            'end_date'
+        )
+
+tvshows_list_schema = TVShowListSchema(many=True)
+
 class TVShowSchema(ma.Schema):
     class Meta:
         # Fields to show
@@ -15,11 +27,11 @@ class TVShowSchema(ma.Schema):
         )
 
     # Nested fields
-    actors = ma.Nested('ActorSchema', many=True, exclude=('tv_shows',))
-    directors = ma.Nested('DirectorSchema', many=True, exclude=('tv_shows',))
-    genres = ma.Nested('GenreSchema', many=True, exclude=('tv_shows',))
-    reviews = ma.Nested('ReviewSchema', many=True, exclue=('tv_shows',))
+    # Nested fields
+    actors = ma.Nested('ActorListSchema', many=True)
+    directors = ma.Nested('DirectorListSchema', many=True)
+    genres = ma.Nested('GenreListSchema', many=True)
+    reviews = ma.Nested('ReviewSchema', many=True, only=('id', 'content', 'rating'))
 
-
-tvshow_schema = TVShowSchema
+tvshow_schema = TVShowSchema()
 tvshows_schema = TVShowSchema(many=True)

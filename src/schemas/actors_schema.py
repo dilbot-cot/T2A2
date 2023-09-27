@@ -23,8 +23,8 @@ class ActorSchema(ma.Schema):
         )
     
     # Nested fields
-    movies = ma.Nested('MovieSchema', many=True, only=('id','title','release_date'))
-    tv_shows = ma.Nested('TVShowSchema', many=True, only=('id','title','start_date','end_date'))
+    movies = ma.Nested('MovieListSchema', many=True)
+    tv_shows = ma.Nested('TVShowListSchema', many=True)
 
 
 actor_schema = ActorSchema()

@@ -13,8 +13,8 @@ class ReviewSchema(ma.Schema):
         )
     
     # Nested fields
-    movies = ma.Nested('MovieSchema', exclude=('reviews',))
-    tv_shows = ma.Nested('TVShowSchema', exclude=('reviews',))
+    movies = ma.Nested('MovieSchema', only=('id', 'title', 'release_date'))
+    tv_shows = ma.Nested('TVShowSchema', only=('id', 'title', 'start_date', 'end_date'))
     user = ma.Nested('UserSchema', only=('id', 'username'))
 
 review_schema = ReviewSchema
