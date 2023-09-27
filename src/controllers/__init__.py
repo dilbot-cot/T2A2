@@ -5,6 +5,7 @@ from .directors_controller import directors
 from .home_controller import home
 from .genres_controller import genres
 from .movies_controller import movies
+from .tv_shows_controller import tv_shows
 
 registerable_controllers = [
     actors,
@@ -13,5 +14,6 @@ registerable_controllers = [
     directors, 
     home, 
     genres,
-    movies
+    movies, 
+    tv_shows
 ]
