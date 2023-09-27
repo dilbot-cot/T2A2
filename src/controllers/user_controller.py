@@ -1,9 +1,21 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from main import db, bcrypt
-from models import User
+from models import User, Review
+from schemas import reviews_schema
 
 user = Blueprint('user', __name__, url_prefix="/user")
+
+@user.route("reviews", methods=["GET"])
+@jwt_required()
+def list_reviews():
+    user_id = get_jwt_identity()
+    current_user = User.query.get(user_id)
+    if not current_user:
+        return jsonify ({"error": "Please login to see all of your posted reviews"}), 401
+    
+    reviews = Review.query.filter_by(user_id=user_id).all()
+    return jsonify (reviews_schema.dump(reviews))
 
 #POST endpoints
 # Get authentication token

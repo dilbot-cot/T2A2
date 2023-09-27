@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from main import db
 from models import Movie, User, Actor, Director, Genre
-from schemas import movie_schema, movies_list_schema, movies_schema
+from schemas import movie_schema, movies_list_schema
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
 
