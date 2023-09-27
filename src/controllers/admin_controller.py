@@ -177,3 +177,25 @@ def del_tv_show(id):
         return jsonify({"message": f"You have removed tv_show: {tv_show.title} successfully"}), 200
     except Exception as e:
         return jsonify ({"error": f"An error occured while attempting to delete the tv_show, reason: {str(e)}"}), 500
+    
+@admin.route("/review/<int:id>", methods=["DELETE"])
+@jwt_required()
+def del_review(id):
+    user_id = get_jwt_identity()
+    current_user = User.query.get(user_id)
+    if not current_user:
+        return jsonify({"error": "You are not registered or not logged in"}), 401
+    # check if they are admin
+    if not current_user.is_admin:
+        return jsonify({"error": "You do not have permission to perform this function"}), 403
+    
+    review = Review.query.get(id)
+    if not review:
+        return jsonify ({"error": "Review not found"}), 404
+    
+    try:
+        db.session.delete(review)
+        db.session.commit()
+        return jsonify({"message": f"You have removed review {review.id} successfully"}), 200
+    except Exception as e:
+        return jsonify ({"error": f"An error occured while attempting to delete the review, reason: {str(e)}"}), 500
