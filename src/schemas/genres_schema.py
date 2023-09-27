@@ -1,12 +1,11 @@
 from main import ma
-# from schemas import MovieSchema, TVShowSchema
 
 class GenreSchema(ma.Schema):
     class Meta:
         # Fields to show
         fields = (
             'id',
-            'name'
+            'name',
             'movies',
             'tv_shows'
         )

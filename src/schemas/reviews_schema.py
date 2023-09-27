@@ -1,5 +1,4 @@
 from main import ma
-# from schemas import MovieSchema, TVShowSchema, UserSchema
 
 class ReviewSchema(ma.Schema):
     class Meta:

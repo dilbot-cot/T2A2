@@ -1,5 +1,4 @@
 from main import ma
-# from schemas import ActorSchema, DirectorSchema, GenreSchema, ReviewSchema
 
 class TVShowSchema(ma.Schema):
     class Meta:
@@ -8,7 +7,7 @@ class TVShowSchema(ma.Schema):
             'id',
             'title',
             'start_date',
-            'end_date'
+            'end_date',
             'actors',
             'directors',
             'genres',

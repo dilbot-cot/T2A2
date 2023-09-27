@@ -15,7 +15,7 @@ def create_app():
     # App object area
     app = Flask(__name__)
 
-    # App configuartion area
+    # App configuration area
     app.config.from_object("config.app_config")
 
     # DB object area

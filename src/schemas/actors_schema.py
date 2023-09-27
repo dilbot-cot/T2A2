@@ -1,5 +1,15 @@
 from main import ma
-# from schemas import MovieSchema, TVShowSchema
+
+class ActorListSchema(ma.Schema):
+    class Meta:
+        # Fields to show
+        fields = (
+            'id',
+            'name',
+            'dob'
+        )
+
+actors_list_schema = ActorListSchema(many=True)
 
 class ActorSchema(ma.Schema):
     class Meta:
@@ -13,9 +23,9 @@ class ActorSchema(ma.Schema):
         )
     
     # Nested fields
-    movies = ma.Nested('MovieSchema', many=True, exclude=('actors',))
-    tv_shows = ma.Nested('TVShowSchema', many=True, exclude=('actors',))
+    movies = ma.Nested('MovieSchema', many=True, only=('id','title','release_date'))
+    tv_shows = ma.Nested('TVShowSchema', many=True, only=('id','title','start_date','end_date'))
 
 
-actor_schema = ActorSchema
+actor_schema = ActorSchema()
 actors_schema = ActorSchema(many=True)
