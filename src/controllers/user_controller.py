@@ -5,6 +5,7 @@ from models import User, Review
 from schemas import reviews_schema
 from sqlalchemy.orm import joinedload
 from .utils import get_current_user
+import re
 
 user = Blueprint('user', __name__, url_prefix="/user")
 
@@ -52,6 +53,23 @@ def new_user():
     username = data['username']
     email = data['email']
     password = data['password']
+
+    # validate the email
+    pattern = r"[a-zA-Z0-9._%+-]{3,}@[a-zA-Z0-9.-]+\.[a-zA-Z{2,}]"
+    if not re.match(pattern, email):
+        return jsonify ({"error": "Invalid email address"}),400
+    
+    # validate username length
+    if len(username) < 6:
+        return jsonify ({"error": "Username must be at least 6 characters long"})
+    
+    # validate password complexity
+    password_pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+    if not re.match(password_pattern, password):
+        return jsonify({
+            "error": "Password must be at least 8 characters long and include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character"
+        }), 400
+
     exisiting_user = User.query.filter_by(username=username).first()
     exisiting_email = User.query.filter_by(email=email).first()
     # Checks if username or email has been used previously

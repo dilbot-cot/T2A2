@@ -7,7 +7,7 @@ from .utils import get_or_404, get_current_user
 
 review = Blueprint('review', __name__, url_prefix="/review")
 
-#POST endpoints
+#POST endpoint
 @review.route("/", methods=["POST"])
 @jwt_required()
 def new_review():
@@ -40,6 +40,7 @@ def new_review():
     db.session.commit()
     return jsonify(review_schema.dump(new_review))
 
+# DELETE endpoint
 @review.route("/<int:id>", methods=["DELETE"])
 @jwt_required()
 def del_review(id):

@@ -21,7 +21,7 @@ def seed_db():
     user1 = User(
         username = "admin",
         email = "admin@email.com",
-        password = bcrypt.generate_password_hash("admin").decode("utf-8"),
+        password = bcrypt.generate_password_hash("admin1234").decode("utf-8"),
         is_admin = True
     )
     user2 = User(
