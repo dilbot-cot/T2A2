@@ -1,111 +1,101 @@
 from flask import Blueprint, jsonify, request
 from main import db
-from models import Actor, User, Movie, TVShow
+from models import Actor, Movie, TVShow
 from schemas import actors_list_schema, actor_schema
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from datetime import datetime
-from .utils import get_or_404
+from flask_jwt_extended import jwt_required
+from .utils import get_or_404, validate_json_fields, parse_date, append_relation_to_resource, commit_and_respond, get_current_user
 
 actors = Blueprint('actors', __name__, url_prefix="/actors")
 
-#GET endpoints
+# GET methods
 @actors.route("/", methods=["GET"])
-def get_actors():
-    # route gets all the actors without delving into the nested fields
-    # this will be handled when looking at the specific actor
+# Gets a list of all actors, with limited info passed from actors_list_schema
+def get_actors(): 
     all_actors = Actor.query.all()
     result = actors_list_schema.dump(all_actors)
     return jsonify(result)
 
 @actors.route("<int:id>", methods=["GET"])
+# Gets all info from a specific actor based on id
 def get_actor(id):
     actor = get_or_404(Actor, id)
     result = actor_schema.dump(actor)
     return jsonify (result)
 
-#POST endpoints
-# New Actor
+# POST method
 @actors.route("/", methods=["POST"])
 @jwt_required()
+# Creates a new actor 
 def new_actor():
-    # First check that the user exists in DB
-    user_id = get_jwt_identity()
-    current_user = User.query.get(user_id)
-    if not current_user:
-        return jsonify ({"error": "You are not authorised to perform this action, please login first"}), 401
-    
-    data  = request.get_json()
-    if not data or 'name' not in data or 'dob' not in data:
-        return jsonify({"error": "Missing actor details"}), 400
-    
-    name = data['name']
-    dob_str = data['dob']
-    movie_id = data.get('movie.id', None)
-    tv_show_id = data.get('tv_show.id', None)
-
-    try:
-        dob = datetime.strptime(dob_str, '%d/%m/%Y').date()
-    except ValueError:
-        return jsonify ({"error": "Invalid date format. Please input as 'dd/mm/yyyy'"}), 400
-
-    # find by name if the actor alread exists
-    existing_actor = Actor.query.filter_by(name=name).first()
-
-    # If actor already exists, return error
+    # authenticate the user calling the get_current_user function from utils.py
+    _, error, status_code = get_current_user()
+    if error:
+        return error, status_code
+    # fetch the data from JSON payload
+    data, error, status_code = validate_json_fields(['name', 'dob'])
+    if error:
+        return error, status_code
+    # parse the dob string through the parse_date funtion from utils.py
+    dob, error, status_code = parse_date(data['dob'])
+    if error:
+        return error, status_code
+    # search if the actor name appears in the database already
+    existing_actor = Actor.query.filter_by(name=data['name']).first()
     if existing_actor:
-        return jsonify ({"error": "Actor already exists in database"}), 400
+        return jsonify({"error": "Actor already exists in database"}), 400
     
-    # create new actor
-    new_actor = Actor(name=name, dob=dob)
+    new_actor = Actor(name=data['name'], dob=dob) # Mandatory fields to create the actor
+    db.session.add(new_actor) # Adds the actor as we have all mandatory fields
 
-    # if movie details were passed at creation, append
-    if movie_id:
-        movie = Movie.query.get(movie_id)
-        if movie:
-            new_actor.movies.append(movie)
+    # optional fields are then iterated
+    for relation_type in ['movie', 'tv_show']:
+        class_name = 'Movie' if relation_type == 'movie' else 'TVShow'
+        relation_id = data.get(f'{relation_type}.id', None)
+        if relation_id: # if movie.id ot tv_show.id has value
+            relation = db.session.query(eval(class_name)).get(relation_id)
+            # If the details listed for the ids is valid, append it to the new_actor, else error
+            if relation:
+                append_relation_to_resource(new_actor, relation, lambda resource, r: getattr(resource, f"{relation_type}s").append(r))
+            else:
+                return jsonify ({"error": f"{relation_type.capitalize()} not found"}), 404
+    
+    return commit_and_respond(new_actor, actor_schema)
 
-    # if tv_show details were passed at creation, append
-    if tv_show_id:
-        tv_show = TVShow.query.get(tv_show_id)
-        if tv_show:
-            new_actor.tv_shows.append(tv_show)
-
-    db.session.add(new_actor)
-    db.session.commit()
-
-    return jsonify (actor_schema.dump(new_actor))
+# PUT Methods
+@actors.route("/<int:id>/tv", methods=["PUT"])
+@jwt_required()
+def add_tv_show_to_actor(id):
+    # Authenticate user
+    _, error, status_code = get_current_user()
+    if error:
+        return error, status_code
+    # Check if actor exists in database
+    actor = get_or_404(Actor, id)
+    data = request.get_json()
+    tv_show_id = data.get('tv_show.id', None)
+    # Make sure json payload includes required field
+    if not tv_show_id:
+        return jsonify ({"error": "Missing tv_show_id"}), 400
+    # Check if the tv_show being linked exists in database
+    tv_show = get_or_404(TVShow, tv_show_id)
+    append_relation_to_resource(actor, tv_show, lambda resource, relation: resource.tv_shows.append(relation))
+    return commit_and_respond(actor, actor_schema)
 
 @actors.route("/<int:id>/movie", methods=["PUT"])
 @jwt_required()
 def add_movie_to_actor(id):
+    # Authenticate user
+    _, error, status_code = get_current_user()
+    if error:
+        return error, status_code
+    # Check if actor exists in database
     actor = get_or_404(Actor, id)
     data = request.get_json()
-    movie_id = data.get('movie_id', None)
-
+    movie_id = data.get('movie.id', None)
+    # Make sure json payload includes required field
     if not movie_id:
-        return jsonify ({"error": "Missing movie_id"}), 400
-    
+        return jsonify ({"error": "Missing movie.id"}), 400
+    # Check if the movie being linked exists in database
     movie = get_or_404(Movie, movie_id)
-    
-    actor.movies.append(movie)
-    db.session.commit()
-
-    return jsonify (actor_schema.dump(actor))
-
-
-@actors.route("/<int:id>/tv", methods=["PUT"])
-@jwt_required()
-def add_tv_show_to_actor(id):
-    actor = get_or_404(Actor, id)
-    data = request.get_json()
-    tv_show_id = data.get('tv_show_id', None)
-
-    if not tv_show_id:
-        return jsonify ({"error": "Missing tv_show_id"}), 400
-    
-    tv_show = get_or_404(TVShow, tv_show_id)
-    
-    actor.tv_shows.append(tv_show)
-    db.session.commit()
-
-    return jsonify (actor_schema.dump(actor))
+    append_relation_to_resource(actor, movie, lambda resource, relation: resource.movies.append(relation))
+    return commit_and_respond(actor, actor_schema)

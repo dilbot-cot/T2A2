@@ -1,27 +1,20 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 from main import db
 from models import User, Actor, Director, Movie, TVShow, Review, Genre
 from schemas import users_list_schema
-from .utils import get_or_404
+from .utils import get_or_404, get_current_user
 
 admin = Blueprint('admin', __name__, url_prefix="/admin")
 
-#GET endpoints
 @admin.route("/user", methods=["GET"])
 @jwt_required()
 def get_users():
-    # get id of current user from JWT
-    user_id = get_jwt_identity()
-    # get user from database
-    current_user = User.query.get(user_id)
-    # check if they are a user of the platform
-    if not current_user:
-        return jsonify({"error": "You are not registered or not logged in"}), 401
-    # check if they are admin
+    current_user, error, status_code = get_current_user()
+    if error:
+        return error, status_code
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
-    # if passed, provide the list of users
     all_users = User.query.all()
     result = users_list_schema.dump(all_users)
     return jsonify(result)
@@ -29,50 +22,34 @@ def get_users():
 @admin.route("/user/<int:id>", methods=["PUT"])
 @jwt_required()
 def make_user_admin(id):
-    user_id = get_jwt_identity()
-    current_user = User.query.get(user_id)
-    if not current_user:
-        return jsonify({"error": "You are not registered or not logged in"}), 401
-    # check if they are admin
+    current_user, error, status_code = get_current_user()
+    if error:
+        return error, status_code
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
     user = get_or_404(User, id)
-    
     data = request.get_json()
     update_admin = data.get('is_admin', None)
-
     try:
-        # Check if 'update_admin' is a boolean
         if not isinstance(update_admin, bool):
             raise ValueError("'is_admin' must be a boolean")
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
-    
     user.is_admin = update_admin
     db.session.commit()
-
     return jsonify ({"message": f"User: '{user.username}' has had 'is_admin' permissions changed to '{update_admin}'"})
 
-
-# DELETE endpoints
 @admin.route("/user/<int:id>", methods=["DELETE"])
 @jwt_required()
 def del_users(id):
-    # get id of current user from JWT
-    user_id = get_jwt_identity()
-    # get user from database
-    current_user = User.query.get(user_id)
-    # check if they are a user of the platform
-    if not current_user:
-        return jsonify({"error": "You are not registered or not logged in"}), 401
-    # check if they are admin
+    current_user, error, status_code = get_current_user()
+    if error:
+        return error, status_code
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
-    
     user = get_or_404(User, id)
     if current_user == user:
         return jsonify ({"error": "you cannot remove yourself through admin dashboard, please delete yourself through user dashboard"}), 403
-    
     try:
         db.session.delete(user)
         db.session.commit()
@@ -83,19 +60,12 @@ def del_users(id):
 @admin.route("/actor/<int:id>", methods=["DELETE"])
 @jwt_required()
 def del_actor(id):
-    # get id of current user from JWT
-    user_id = get_jwt_identity()
-    # get user from database
-    current_user = User.query.get(user_id)
-    # check if they are a user of the platform
-    if not current_user:
-        return jsonify({"error": "You are not registered or not logged in"}), 401
-    # check if they are admin
+    current_user, error, status_code = get_current_user()
+    if error:
+        return error, status_code
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
-    
     actor = get_or_404(Actor, id)
-    
     try:
         db.session.delete(actor)
         db.session.commit()
@@ -106,19 +76,12 @@ def del_actor(id):
 @admin.route("/director/<int:id>", methods=["DELETE"])
 @jwt_required()
 def del_director(id):
-    # get id of current user from JWT
-    user_id = get_jwt_identity()
-    # get user from database
-    current_user = User.query.get(user_id)
-    # check if they are a user of the platform
-    if not current_user:
-        return jsonify({"error": "You are not registered or not logged in"}), 401
-    # check if they are admin
+    current_user, error, status_code = get_current_user()
+    if error:
+        return error, status_code
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
-    
     director = get_or_404(Director, id)
-    
     try:
         db.session.delete(director)
         db.session.commit()
@@ -129,19 +92,12 @@ def del_director(id):
 @admin.route("/genre/<int:id>", methods=["DELETE"])
 @jwt_required()
 def del_genre(id):
-    # get id of current user from JWT
-    user_id = get_jwt_identity()
-    # get user from database
-    current_user = User.query.get(user_id)
-    # check if they are a user of the platform
-    if not current_user:
-        return jsonify({"error": "You are not registered or not logged in"}), 401
-    # check if they are admin
+    current_user, error, status_code = get_current_user()
+    if error:
+        return error, status_code
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
-    
     genre = get_or_404(Genre, id)
-    
     try:
         db.session.delete(genre)
         db.session.commit()
@@ -152,19 +108,12 @@ def del_genre(id):
 @admin.route("/movie/<int:id>", methods=["DELETE"])
 @jwt_required()
 def del_movie(id):
-    # get id of current user from JWT
-    user_id = get_jwt_identity()
-    # get user from database
-    current_user = User.query.get(user_id)
-    # check if they are a user of the platform
-    if not current_user:
-        return jsonify({"error": "You are not registered or not logged in"}), 401
-    # check if they are admin
+    current_user, error, status_code = get_current_user()
+    if error:
+        return error, status_code
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
-    
     movie = get_or_404(Movie, id)
-    
     try:
         db.session.delete(movie)
         db.session.commit()
@@ -175,19 +124,12 @@ def del_movie(id):
 @admin.route("/tv_show/<int:id>", methods=["DELETE"])
 @jwt_required()
 def del_tv_show(id):
-    # get id of current user from JWT
-    user_id = get_jwt_identity()
-    # get user from database
-    current_user = User.query.get(user_id)
-    # check if they are a user of the platform
-    if not current_user:
-        return jsonify({"error": "You are not registered or not logged in"}), 401
-    # check if they are admin
+    current_user, error, status_code = get_current_user()
+    if error:
+        return error, status_code
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
-    
     tv_show = get_or_404(TVShow, id)
-    
     try:
         db.session.delete(tv_show)
         db.session.commit()
@@ -198,16 +140,12 @@ def del_tv_show(id):
 @admin.route("/review/<int:id>", methods=["DELETE"])
 @jwt_required()
 def del_review(id):
-    user_id = get_jwt_identity()
-    current_user = User.query.get(user_id)
-    if not current_user:
-        return jsonify({"error": "You are not registered or not logged in"}), 401
-    # check if they are admin
+    current_user, error, status_code = get_current_user()
+    if error:
+        return error, status_code
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
-    
     review = get_or_404(Review, id)
-    
     try:
         db.session.delete(review)
         db.session.commit()
