@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from main import db
 from models import User, Actor, Director, Movie, TVShow, Review, Genre
@@ -24,6 +24,36 @@ def get_users():
     all_users = User.query.all()
     result = users_list_schema.dump(all_users)
     return jsonify(result)
+
+@admin.route("/user/<int:id>", methods=["PUT"])
+@jwt_required()
+def make_user_admin(id):
+    user_id = get_jwt_identity()
+    current_user = User.query.get(user_id)
+    if not current_user:
+        return jsonify({"error": "You are not registered or not logged in"}), 401
+    # check if they are admin
+    if not current_user.is_admin:
+        return jsonify({"error": "You do not have permission to perform this function"}), 403
+    user = User.query.get(id)
+    if not user:
+        return jsonify ({"error": "User not found"}), 404
+    
+    data = request.get_json()
+    update_admin = data.get('is_admin', None)
+
+    try:
+        # Check if 'update_admin' is a boolean
+        if not isinstance(update_admin, bool):
+            raise ValueError("'is_admin' must be a boolean")
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    
+    user.is_admin = update_admin
+    db.session.commit()
+
+    return jsonify ({"message": f"User: '{user.username}' has had 'is_admin' permissions changed to '{update_admin}'"})
+
 
 # DELETE endpoints
 @admin.route("/user/<int:id>", methods=["DELETE"])

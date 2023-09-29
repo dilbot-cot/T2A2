@@ -21,8 +21,8 @@ def new_review():
 
     content = data['content']
     rating = data.get('rating', None)
-    movie_id = data.get('movie_id', None)
-    tv_id = data.get('tv_show_id', None)
+    movie_id = data.get('movie.id', None)
+    tv_id = data.get('tv_show.id', None)
 
     if movie_id is None and tv_id is None:
         return jsonify({"error": "You must link to either a movie or tv show at a minimum"}), 400

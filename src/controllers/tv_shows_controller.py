@@ -20,7 +20,7 @@ def get_tv_shows():
 def get_tv_show(id):
     tv_show = TVShow.query.get(id)
     if not tv_show:
-        return jsonify ({"error": "tv_show not found"}), 404
+        return jsonify ({"error": "TV Show not found"}), 404
     result = tvshow_schema.dump(tv_show)
     return jsonify (result)
 
@@ -37,7 +37,7 @@ def new_tv_show():
     
     data  = request.get_json()
     if not data or 'title' not in data or 'start_date' not in data:
-        return jsonify({"error": "Missing tv_show details"}), 400
+        return jsonify({"error": "Missing TV Show details"}), 400
     
     title = data['title']
     start_date_str = data['start_date']
@@ -61,7 +61,7 @@ def new_tv_show():
 
     # If tv_show already exists, return error
     if existing_tv_show:
-        return jsonify ({"error": "tv_show already exists in database"}), 400
+        return jsonify ({"error": "TV Show already exists in database"}), 400
     
     # create new tv_show
     new_tv_show = TVShow(title=title, start_date=start_date, end_date=end_date)
@@ -95,12 +95,12 @@ def new_tv_show():
 def add_actor_to_tv_show(id):
     tv_show = TVShow.query.get(id)
     if not tv_show:
-        return jsonify ({"error": "tv_show not found"}), 404
+        return jsonify ({"error": "TV Show not found"}), 404
     data = request.get_json()
-    actor_id = data.get('actor_id', None)
+    actor_id = data.get('actor.id', None)
 
     if not actor_id:
-        return jsonify ({"error": "Missing actor_id"}), 400
+        return jsonify ({"error": "Missing actor.id"}), 400
     
     actor = Actor.query.get(actor_id)
     if not actor:
@@ -116,12 +116,12 @@ def add_actor_to_tv_show(id):
 def add_director_to_tv_show(id):
     tv_show = TVShow.query.get(id)
     if not tv_show:
-        return jsonify ({"error": "tv_show not found"}), 404
+        return jsonify ({"error": "TV Show not found"}), 404
     data = request.get_json()
-    director_id = data.get('director_id', None)
+    director_id = data.get('director.id', None)
 
     if not director_id:
-        return jsonify ({"error": "Missing director_id"}), 400
+        return jsonify ({"error": "Missing director.id"}), 400
     
     director = Director.query.get(director_id)
     if not director:
@@ -137,18 +137,39 @@ def add_director_to_tv_show(id):
 def add_genre_to_tv_show(id):
     tv_show = TVShow.query.get(id)
     if not tv_show:
-        return jsonify ({"error": "tv_show not found"}), 404
+        return jsonify ({"error": "TV Show not found"}), 404
     data = request.get_json()
-    genre_id = data.get('genre_id', None)
+    genre_id = data.get('genre.id', None)
 
     if not genre_id:
-        return jsonify ({"error": "Missing genre_id"}), 400
+        return jsonify ({"error": "Missing genre.id"}), 400
     
     genre = Genre.query.get(genre_id)
     if not genre:
         return jsonify ({"error": "Genre not found"}), 404
     
     tv_show.genres.append(genre)
+    db.session.commit()
+
+    return jsonify (tvshow_schema.dump(tv_show))
+
+@tv_shows.route("/<int:id>/end_date", methods=["PUT"])
+@jwt_required()
+def add_end_date_to_tv_show(id):
+    tv_show = TVShow.query.get(id)
+    if not tv_show:
+        return jsonify ({"error": "TV Show not found"}), 404
+    data = request.get_json()
+    end_date_str = data.get('end_date', None)
+
+    if not end_date_str:
+        return jsonify ({"error": "Missing end_date"}), 400
+    try:
+        end_date = datetime.strptime(end_date_str, '%d/%m/%Y').date()
+    except ValueError:
+        return jsonify ({"error": "Invalid date format. Please input as 'dd/mm/yyyy'"}), 400
+    
+    tv_show.end_date = end_date
     db.session.commit()
 
     return jsonify (tvshow_schema.dump(tv_show))

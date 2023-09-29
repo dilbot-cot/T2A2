@@ -90,10 +90,10 @@ def add_actor_to_movie(id):
     if not movie:
         return jsonify ({"error": "Movie not found"}), 404
     data = request.get_json()
-    actor_id = data.get('actor_id', None)
+    actor_id = data.get('actor.id', None)
 
     if not actor_id:
-        return jsonify ({"error": "Missing actor_id"}), 400
+        return jsonify ({"error": "Missing actor.id"}), 400
     
     actor = Actor.query.get(actor_id)
     if not actor:
@@ -111,10 +111,10 @@ def add_director_to_movie(id):
     if not movie:
         return jsonify ({"error": "Movie not found"}), 404
     data = request.get_json()
-    director_id = data.get('director_id', None)
+    director_id = data.get('director.id', None)
 
     if not director_id:
-        return jsonify ({"error": "Missing director_id"}), 400
+        return jsonify ({"error": "Missing director.id"}), 400
     
     director = Director.query.get(director_id)
     if not director:
@@ -132,10 +132,10 @@ def add_genre_to_movie(id):
     if not movie:
         return jsonify ({"error": "Movie not found"}), 404
     data = request.get_json()
-    genre_id = data.get('genre_id', None)
+    genre_id = data.get('genre.id', None)
 
     if not genre_id:
-        return jsonify ({"error": "Missing genre_id"}), 400
+        return jsonify ({"error": "Missing genre.id"}), 400
     
     genre = Genre.query.get(genre_id)
     if not genre:
