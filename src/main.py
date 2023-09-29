@@ -38,6 +38,7 @@ def create_app():
     for controller in registerable_controllers:
         app.register_blueprint(controller)
     
+    # handles all value errors that occur
     @app.errorhandler(ValueError)
     def handle_value_error(error):
         return jsonify({"error": str(error)}), 404
