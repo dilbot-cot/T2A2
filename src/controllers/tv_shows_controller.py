@@ -4,6 +4,7 @@ from models import TVShow, User, Actor, Director, Genre
 from schemas import tvshow_schema, tvshows_list_schema
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
+from .utils import get_or_404
 
 tv_shows = Blueprint('tv_shows', __name__, url_prefix="/tv_shows")
 
@@ -18,9 +19,7 @@ def get_tv_shows():
 
 @tv_shows.route("<int:id>", methods=["GET"])
 def get_tv_show(id):
-    tv_show = TVShow.query.get(id)
-    if not tv_show:
-        return jsonify ({"error": "TV Show not found"}), 404
+    tv_show = get_or_404(TVShow, id)
     result = tvshow_schema.dump(tv_show)
     return jsonify (result)
 
@@ -93,18 +92,14 @@ def new_tv_show():
 @tv_shows.route("/<int:id>/actor", methods=["PUT"])
 @jwt_required()
 def add_actor_to_tv_show(id):
-    tv_show = TVShow.query.get(id)
-    if not tv_show:
-        return jsonify ({"error": "TV Show not found"}), 404
+    tv_show = get_or_404(TVShow, id)
     data = request.get_json()
     actor_id = data.get('actor.id', None)
 
     if not actor_id:
         return jsonify ({"error": "Missing actor.id"}), 400
     
-    actor = Actor.query.get(actor_id)
-    if not actor:
-        return jsonify ({"error": "Actor not found"}), 404
+    actor = get_or_404(Actor, actor_id)
     
     tv_show.actors.append(actor)
     db.session.commit()
@@ -114,18 +109,14 @@ def add_actor_to_tv_show(id):
 @tv_shows.route("/<int:id>/director", methods=["PUT"])
 @jwt_required()
 def add_director_to_tv_show(id):
-    tv_show = TVShow.query.get(id)
-    if not tv_show:
-        return jsonify ({"error": "TV Show not found"}), 404
+    tv_show = get_or_404(TVShow, id)
     data = request.get_json()
     director_id = data.get('director.id', None)
 
     if not director_id:
         return jsonify ({"error": "Missing director.id"}), 400
     
-    director = Director.query.get(director_id)
-    if not director:
-        return jsonify ({"error": "Director not found"}), 404
+    director = get_or_404(Director, director_id)
     
     tv_show.directors.append(director)
     db.session.commit()
@@ -135,18 +126,14 @@ def add_director_to_tv_show(id):
 @tv_shows.route("/<int:id>/genre", methods=["PUT"])
 @jwt_required()
 def add_genre_to_tv_show(id):
-    tv_show = TVShow.query.get(id)
-    if not tv_show:
-        return jsonify ({"error": "TV Show not found"}), 404
+    tv_show = get_or_404(TVShow, id)
     data = request.get_json()
     genre_id = data.get('genre.id', None)
 
     if not genre_id:
         return jsonify ({"error": "Missing genre.id"}), 400
     
-    genre = Genre.query.get(genre_id)
-    if not genre:
-        return jsonify ({"error": "Genre not found"}), 404
+    genre = get_or_404(Genre, genre_id)
     
     tv_show.genres.append(genre)
     db.session.commit()
@@ -156,9 +143,7 @@ def add_genre_to_tv_show(id):
 @tv_shows.route("/<int:id>/end_date", methods=["PUT"])
 @jwt_required()
 def add_end_date_to_tv_show(id):
-    tv_show = TVShow.query.get(id)
-    if not tv_show:
-        return jsonify ({"error": "TV Show not found"}), 404
+    tv_show = get_or_404(TVShow, id)
     data = request.get_json()
     end_date_str = data.get('end_date', None)
 

@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from main import db, bcrypt
 from models import User, Review, Movie, TVShow
-from schemas import review_schema, reviews_schema
+from schemas import review_schema
+from .utils import get_or_404
 
 review = Blueprint('review', __name__, url_prefix="/review")
 
@@ -57,9 +58,7 @@ def del_review(id):
     if not current_user:
         return jsonify({"error": "Please login before deleting a review"}), 401
     
-    review_to_delete = Review.query.get(id)
-    if not review_to_delete:
-        return jsonify ({"error": "Review not found"}), 404
+    review_to_delete = get_or_404(Review, id)
     
     if review_to_delete.user_id != current_user.id:
         return jsonify ({"error": "Only the poster is allowed to remove their own review"}), 403

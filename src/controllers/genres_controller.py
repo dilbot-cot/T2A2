@@ -3,6 +3,7 @@ from main import db
 from models import Genre, User
 from schemas import genre_schema, genres_list_schema
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from .utils import get_or_404
 
 genres = Blueprint('genres', __name__, url_prefix="/genres")
 
@@ -17,9 +18,7 @@ def get_genres():
 
 @genres.route("<int:id>", methods=["GET"])
 def get_genre(id):
-    genre = Genre.query.get(id)
-    if not genre:
-        return jsonify ({"error": "Genre not found"}), 404
+    genre = get_or_404(Genre, id)
     result = genre_schema.dump(genre)
     return jsonify (result)
 

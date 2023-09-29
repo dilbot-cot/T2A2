@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from main import db
 from models import User, Actor, Director, Movie, TVShow, Review, Genre
 from schemas import users_list_schema
+from .utils import get_or_404
 
 admin = Blueprint('admin', __name__, url_prefix="/admin")
 
@@ -35,9 +36,7 @@ def make_user_admin(id):
     # check if they are admin
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
-    user = User.query.get(id)
-    if not user:
-        return jsonify ({"error": "User not found"}), 404
+    user = get_or_404(User, id)
     
     data = request.get_json()
     update_admin = data.get('is_admin', None)
@@ -70,9 +69,7 @@ def del_users(id):
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
     
-    user = User.query.get(id)
-    if not user:
-        return jsonify ({"error": "User not found"}), 404
+    user = get_or_404(User, id)
     if current_user == user:
         return jsonify ({"error": "you cannot remove yourself through admin dashboard, please delete yourself through user dashboard"}), 403
     
@@ -97,9 +94,7 @@ def del_actor(id):
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
     
-    actor = Actor.query.get(id)
-    if not actor:
-        return jsonify ({"error": "Actor not found"}), 404
+    actor = get_or_404(Actor, id)
     
     try:
         db.session.delete(actor)
@@ -122,9 +117,7 @@ def del_director(id):
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
     
-    director = Director.query.get(id)
-    if not director:
-        return jsonify ({"error": "Director not found"}), 404
+    director = get_or_404(Director, id)
     
     try:
         db.session.delete(director)
@@ -147,9 +140,7 @@ def del_genre(id):
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
     
-    genre = Genre.query.get(id)
-    if not genre:
-        return jsonify ({"error": "Genre not found"}), 404
+    genre = get_or_404(Genre, id)
     
     try:
         db.session.delete(genre)
@@ -172,9 +163,7 @@ def del_movie(id):
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
     
-    movie = Movie.query.get(id)
-    if not movie:
-        return jsonify ({"error": "Movie not found"}), 404
+    movie = get_or_404(Movie, id)
     
     try:
         db.session.delete(movie)
@@ -197,9 +186,7 @@ def del_tv_show(id):
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
     
-    tv_show = TVShow.query.get(id)
-    if not tv_show:
-        return jsonify ({"error": "TV Show not found"}), 404
+    tv_show = get_or_404(TVShow, id)
     
     try:
         db.session.delete(tv_show)
@@ -219,9 +206,7 @@ def del_review(id):
     if not current_user.is_admin:
         return jsonify({"error": "You do not have permission to perform this function"}), 403
     
-    review = Review.query.get(id)
-    if not review:
-        return jsonify ({"error": "Review not found"}), 404
+    review = get_or_404(Review, id)
     
     try:
         db.session.delete(review)

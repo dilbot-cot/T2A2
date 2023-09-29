@@ -1,5 +1,5 @@
 # IMPORT SECTION
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
@@ -37,5 +37,9 @@ def create_app():
 
     for controller in registerable_controllers:
         app.register_blueprint(controller)
+    
+    @app.errorhandler(ValueError)
+    def handle_value_error(error):
+        return jsonify({"error": str(error)}), 404
     
     return app

@@ -4,6 +4,7 @@ from models import Actor, User, Movie, TVShow
 from schemas import actors_list_schema, actor_schema
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
+from .utils import get_or_404
 
 actors = Blueprint('actors', __name__, url_prefix="/actors")
 
@@ -18,9 +19,7 @@ def get_actors():
 
 @actors.route("<int:id>", methods=["GET"])
 def get_actor(id):
-    actor = Actor.query.get(id)
-    if not actor:
-        return jsonify ({"error": "Actor not found"}), 404
+    actor = get_or_404(Actor, id)
     result = actor_schema.dump(actor)
     return jsonify (result)
 
@@ -79,18 +78,14 @@ def new_actor():
 @actors.route("/<int:id>/movie", methods=["PUT"])
 @jwt_required()
 def add_movie_to_actor(id):
-    actor = Actor.query.get(id)
-    if not actor:
-        return jsonify ({"error": "Actor not found"}), 404
+    actor = get_or_404(Actor, id)
     data = request.get_json()
     movie_id = data.get('movie_id', None)
 
     if not movie_id:
         return jsonify ({"error": "Missing movie_id"}), 400
     
-    movie = Movie.query.get(movie_id)
-    if not movie:
-        return jsonify ({"error": "Movie not found"}), 404
+    movie = get_or_404(Movie, movie_id)
     
     actor.movies.append(movie)
     db.session.commit()
@@ -101,18 +96,14 @@ def add_movie_to_actor(id):
 @actors.route("/<int:id>/tv", methods=["PUT"])
 @jwt_required()
 def add_tv_show_to_actor(id):
-    actor = Actor.query.get(id)
-    if not actor:
-        return jsonify ({"error": "Actor not found"}), 404
+    actor = get_or_404(Actor, id)
     data = request.get_json()
     tv_show_id = data.get('tv_show_id', None)
 
     if not tv_show_id:
         return jsonify ({"error": "Missing tv_show_id"}), 400
     
-    tv_show = TVShow.query.get(tv_show_id)
-    if not tv_show:
-        return jsonify ({"error": "tv_show not found"}), 404
+    tv_show = get_or_404(TVShow, tv_show_id)
     
     actor.tv_shows.append(tv_show)
     db.session.commit()

@@ -4,6 +4,7 @@ from models import Movie, User, Actor, Director, Genre
 from schemas import movie_schema, movies_list_schema
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
+from .utils import get_or_404
 
 movies = Blueprint('movies', __name__, url_prefix="/movies")
 
@@ -18,9 +19,7 @@ def get_movies():
 
 @movies.route("<int:id>", methods=["GET"])
 def get_movie(id):
-    movie = Movie.query.get(id)
-    if not movie:
-        return jsonify ({"error": "Movie not found"}), 404
+    movie = get_or_404(Movie, id)
     result = movie_schema.dump(movie)
     return jsonify (result)
 
@@ -86,18 +85,14 @@ def new_movie():
 @movies.route("/<int:id>/actor", methods=["PUT"])
 @jwt_required()
 def add_actor_to_movie(id):
-    movie = Movie.query.get(id)
-    if not movie:
-        return jsonify ({"error": "Movie not found"}), 404
+    movie = get_or_404(Movie, id)
     data = request.get_json()
     actor_id = data.get('actor.id', None)
 
     if not actor_id:
         return jsonify ({"error": "Missing actor.id"}), 400
     
-    actor = Actor.query.get(actor_id)
-    if not actor:
-        return jsonify ({"error": "Actor not found"}), 404
+    actor = get_or_404(Actor, actor_id)
     
     movie.actors.append(actor)
     db.session.commit()
@@ -107,18 +102,14 @@ def add_actor_to_movie(id):
 @movies.route("/<int:id>/director", methods=["PUT"])
 @jwt_required()
 def add_director_to_movie(id):
-    movie = Movie.query.get(id)
-    if not movie:
-        return jsonify ({"error": "Movie not found"}), 404
+    movie = get_or_404(Movie, id)
     data = request.get_json()
     director_id = data.get('director.id', None)
 
     if not director_id:
         return jsonify ({"error": "Missing director.id"}), 400
     
-    director = Director.query.get(director_id)
-    if not director:
-        return jsonify ({"error": "Director not found"}), 404
+    director = get_or_404(Director, director_id)
     
     movie.directors.append(director)
     db.session.commit()
@@ -128,18 +119,14 @@ def add_director_to_movie(id):
 @movies.route("/<int:id>/genre", methods=["PUT"])
 @jwt_required()
 def add_genre_to_movie(id):
-    movie = Movie.query.get(id)
-    if not movie:
-        return jsonify ({"error": "Movie not found"}), 404
+    movie = get_or_404(Movie, id)
     data = request.get_json()
     genre_id = data.get('genre.id', None)
 
     if not genre_id:
         return jsonify ({"error": "Missing genre.id"}), 400
     
-    genre = Genre.query.get(genre_id)
-    if not genre:
-        return jsonify ({"error": "Genre not found"}), 404
+    genre = get_or_404(Genre, genre_id)
     
     movie.genres.append(genre)
     db.session.commit()
