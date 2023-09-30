@@ -26,6 +26,5 @@ class ActorSchema(ma.Schema):
     movies = ma.Nested('MovieListSchema', many=True)
     tv_shows = ma.Nested('TVShowListSchema', many=True)
 
-
 actor_schema = ActorSchema()
 actors_schema = ActorSchema(many=True)

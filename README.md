@@ -85,6 +85,18 @@ BCrypt for password hashing
 - Director: Similar to the Actor model but for directors.
 - Review: Contains user reviews and ratings for movies and TV shows.
 - Many-to-many relationships are managed through join tables, allowing for more complex queries and reports.
+### Model logic
+All input sanitisation is done in the routes instead of through the models. I decided on this appraoch to:
+1. Separate the responsibilities, the model is in charge of ensuring the table has the correct fields, but the route has the responsibility of taking user data. The excpetions to these are where the model requires an input (nullable=False), or a default vaule is required(default=False).
+2. Sterilising data at input means if client decisions on validation change in the future there's no issue on potential corruption or errors, as the exisiting data meets the model requirements.
+3. Custom logic, allowing the use of regex patterns for user login details.
+4. Consistency and DRY: If multiple models use the same requirements, a new function can be developed accross multiple sections.  
+
+You can see this in practice in this code for the user email and password validation.  
+
+Additionally dates have been requested as strings to allow for the more human 'd/M/yyyy' format over the logical 'yyyy/M/d' this can then be converted to a date, and in the event the date does not match a meaningfull display can be output.
+
+Use of a separate join table to accomidate the many-to-many relationships allows for easy expansion in the event more models were requested in the future (EG. Writers)
 
 ## Database relations to be implemented
 - Actor table: actors_id = Primary Key
@@ -100,6 +112,11 @@ BCrypt for password hashing
 - Tv_genres table: genres_id = Foreign Key, tv_shows_id = Foreign Key
 - Tv_shows table: tv_shows_id = Primary Key
 - Users table: user_id = Primary Key
+
+### Rationale
+The a user can post multiple reviews about multiple movies or TV shows, however each review can only be 'related' to one movie or TV Show. Validation exists to ensure that a review is an exclusivly or for movie or TV Show.  
+A single genre can be associated with many different medias, and each media could be multiple genres.  
+An actor or director can work on multiple medias, and could be both in TV and Movies, and the medias can also have multiple actors or directors working on the single project.  
 
 ## How tasks are allocated and tracked
 Trello board identifying key milestones and due dates.  
